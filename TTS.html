@@ -1,0 +1,182 @@
+<html lang="en">
+  <head>
+    <meta name="google-site-verification" content="ctWw5XyR5rnjghXypHvwAZPhEVW-C_-n2hczOlWZWXo" />
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FR25WZHJ01"></script>
+<script>
+  
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-FR25WZHJ01');
+  
+</script>
+    
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!--<link rel="stylesheet" href="index.css" />-->
+    
+	
+    <title>Text to Speech converter</title>
+  <link rel="me" href="https://www.blogger.com/profile/05163159906685275489" />
+<meta name='google-adsense-platform-account' content='ca-host-pub-1556223355139109'/>
+<meta name='google-adsense-platform-domain' content='blogspot.com'/>
+</head>
+  <body class="container mt-5 bg-dark"> <!-- -->
+    <h1 class="text-light">Text to Speech Converter</h1>
+    <p class="lead text-light mt-4">Select Voice</p>
+    
+    <!-- Select Menu for Voice -->
+    <select id="voices" class="form-select bg-secondary text-light"></select>
+
+    <!-- Range Slliders for Volume, Rate & Pitch -->
+    <div class="d-flex mt-4 text-light">
+      <div>
+        <p class="lead">Volume</p>
+        <input type="range" min="0" max="1" value="1" step="0.1" id="volume" />
+        <span id="volume-label" class="ms-2">1</span>
+      </div>
+      <div class="mx-5">
+        <p class="lead">Rate</p>
+        <input type="range" min="0.1" max="10" value="1" id="rate" step="0.1" />
+        <span id="rate-label" class="ms-2">1</span>
+      </div>
+      <div>
+        <p class="lead">Pitch</p>
+        <input type="range" min="0" max="2" value="1" step="0.1" id="pitch" />
+        <span id="pitch-label" class="ms-2">1</span>
+      </div>
+    </div>
+
+    <!-- Text Area  for the User to Type -->
+    <textarea class="form-control bg-dark text-light mt-5" cols="30" rows="10" placeholder="Type here..."></textarea>
+
+    <!-- Control Buttons -->
+    <div class="mb-5">
+      <button id="start" class="btn btn-success mt-5 me-3">Start</button>
+      <button id="pause" class="btn btn-warning mt-5 me-3">Pause</button>
+      <button id="resume" class="btn btn-info mt-5 me-3">Resume</button>
+      <button id="cancel" class="btn btn-danger mt-5 me-3">Cancel</button>
+    </div>
+    <h1 class="text-light">Text to Speech Converter</h1>
+  </body>
+  <script>
+  // Initialize new SpeechSynthesisUtterance object
+let speech = new SpeechSynthesisUtterance();
+
+// Set Speech Language
+speech.lang = "en";
+
+let voices = []; // global array of available voices
+
+window.speechSynthesis.onvoiceschanged = () => {
+  // Get List of Voices
+  voices = window.speechSynthesis.getVoices();
+
+  // Initially set the First Voice in the Array.
+  speech.voice = voices[0];
+
+  // Set the Voice Select List. (Set the Index as the value, which we'll use later when the user updates the Voice using the Select Menu.)
+  let voiceSelect = document.querySelector("#voices");
+  voices.forEach((voice, i) => (voiceSelect.options[i] = new Option(voice.name, i)));
+};
+
+document.querySelector("#rate").addEventListener("input", () => {
+  // Get rate Value from the input
+  const rate = document.querySelector("#rate").value;
+
+  // Set rate property of the SpeechSynthesisUtterance instance
+  speech.rate = rate;
+
+  // Update the rate label
+  document.querySelector("#rate-label").innerHTML = rate;
+});
+
+document.querySelector("#volume").addEventListener("input", () => {
+  // Get volume Value from the input
+  const volume = document.querySelector("#volume").value;
+
+  // Set volume property of the SpeechSynthesisUtterance instance
+  speech.volume = volume;
+
+  // Update the volume label
+  document.querySelector("#volume-label").innerHTML = volume;
+});
+
+document.querySelector("#pitch").addEventListener("input", () => {
+  // Get pitch Value from the input
+  const pitch = document.querySelector("#pitch").value;
+
+  // Set pitch property of the SpeechSynthesisUtterance instance
+  speech.pitch = pitch;
+
+  // Update the pitch label
+  document.querySelector("#pitch-label").innerHTML = pitch;
+});
+
+document.querySelector("#voices").addEventListener("change", () => {
+  // On Voice change, use the value of the select menu (which is the index of the voice in the global voice array)
+  speech.voice = voices[document.querySelector("#voices").value];
+});
+
+document.querySelector("#start").addEventListener("click", () => {
+  // Set the text property with the value of the textarea
+  speech.text = document.querySelector("textarea").value;
+  var maxLimit = 1048545;
+  var txt = document.querySelector("textarea").value;
+  var length= txt.length;
+  if(length>maxLimit){
+	  	var parts=Math.floor(length/maxLimit);
+		var start = 0;
+		var end = maxLimit;
+		
+		for(var i=0; i<parts; i++){
+			speech.text = txt.substring(start,end);
+			console.log('speaking...part-',i+1);
+			// Start Speaking
+			window.speechSynthesis.speak(speech);
+			start=end;
+			end = start+end;
+		}
+		
+		if(length%maxLimit != 0){
+			speech.text = txt.substring(start);
+			console.log('speaking...last part');
+			// Start Speaking
+			window.speechSynthesis.speak(speech);
+		}
+  
+  }else{
+	speech.text = txt;
+	console.log('speaking...init..');
+	  // Start Speaking
+	window.speechSynthesis.speak(speech);
+  }
+	
+  
+ 
+});
+
+document.querySelector("#pause").addEventListener("click", () => {
+  // Pause the speechSynthesis instance
+  window.speechSynthesis.pause();
+  console.log('pause ends...');
+});
+
+document.querySelector("#resume").addEventListener("click", () => {
+  // Resume the paused speechSynthesis instance
+  window.speechSynthesis.resume();
+  console.log('resume ends...');
+});
+
+document.querySelector("#cancel").addEventListener("click", () => {
+  // Cancel the speechSynthesis instance
+  window.speechSynthesis.cancel();
+  console.log('cancel ends...');
+});
+
+ 
+    
+  </script>
+</html>
